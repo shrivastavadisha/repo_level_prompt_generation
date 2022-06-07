@@ -29,8 +29,6 @@ Running this will create a new folder called rule_classifier_data that has train
       * parsed_data
       * duplicates
 
-The web URLs for all the repositories used in our work is provided in <ins>projects.txt</ins>. Download and store them in a folder called <ins>gcode-data<\ins>.
-
 ### Generating completions using Codex, i.e., obtaining the ground-truth for training the rule classifier or oracle.
 `script_completions.py`
 Generates a file <ins>commands_completion</ins>. Running this will create a new folder called results that has train, val and test subfolders. Inside each folder, we will have the ten folders corresponding to rule context locations. Each folder contains .json files corresponding to rule context types. Each row of the file contains data about the application of that particular rule to a hole. It stores the target hole, predicted hole, the prompt and the validity of the rule.
