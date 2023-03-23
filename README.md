@@ -1,7 +1,7 @@
 ## Repository-Level Prompt Generation for Large Language Models of Code
 Disha Shrivastava, Hugo Larochelle, Daniel Tarlow
 
-This repository contains implementation and data for our work [Repository-Level Prompt Generation for Large Language Models of Code](). A block diagram of our approach can be found below. For more details, refer to the paper.
+This repository contains implementation and data for our work [Repository-Level Prompt Generation for Large Language Models of Code](https://arxiv.org/abs/2206.12839). A block diagram of our approach can be found below. For more details, refer to the paper.
 
 <p align="center">
  <img src="block_diagram.png" width=1000>
