@@ -17,7 +17,7 @@ This repository contains implementation and data for our work [Repository-Level 
  
 ## Updates
 * We have released the trained checkpoints for RLPG-H and RLPG-R models. You can download them [here](https://drive.google.com/file/d/1txmObhsA_Cs8paj1x8IGsoUqX7oHNxbw/view?usp=share_link). While loading the state_dict, please set the `strict` parameter to `False`. Example usage can be found in `rule_inference_preprocessed_data.py`
-* We are also releasing the predictions of the RLPG-H and RLPG-R models for each hole in our validation and test data. You can download them [here] (https://drive.google.com/file/d/1WSPf4p0tfWs2nLgbpk53Kh5qJG3_33-b/view?usp=share_link). Each pickle file here contains the probabilities for all prompt proposals as given by corresponding trained RLPG models. Example usage can be found in `get_info_from_hole_predictions.py`
+* We are also releasing the predictions of the RLPG-H and RLPG-R models for each hole in our validation and test data. You can download them [here](https://drive.google.com/file/d/1WSPf4p0tfWs2nLgbpk53Kh5qJG3_33-b/view?usp=share_link). Each pickle file contains the probabilities for all prompt proposals as given by the corresponding trained RLPG models. Example usage can be found in `get_info_from_hole_predictions.py`
 
 ## Code
 ### Data preprocessing
