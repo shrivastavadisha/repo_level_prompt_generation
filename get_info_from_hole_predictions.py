@@ -1,5 +1,6 @@
 import pickle
 import os
+import io
 import torch
 import argparse
 
@@ -81,6 +82,13 @@ def setup_args():
   parser.add_argument("--k", type=int, default=1, help="how many rules to draw")
   return parser.parse_args()
 
+class CPU_Unpickler(pickle.Unpickler): 
+    """To load a pickle file stored in torch GPU setting to CPU."""
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
 
 def get_repo_name(hid):
   return hid.split('/')[2]
@@ -132,7 +140,8 @@ if __name__ == '__main__':
   k = args.k
   repo_stats={}
   single_rule_stats = {}
-  data = pickle.load(open(os.path.join(args.base_dir, args.data_split , args.hole_stats_file), 'rb'))
+    # get rlpg predictions
+  data = CPU_Unpickler(open(os.path.join(args.base_dir, args.data_split, args.hole_stats_file), 'rb')).load()
   oracle_dir = 'rule_classifier_data/' + args.data_split 
   for repo, repo_count in projects[args.data_split ]:
     oracle = pickle.load(open(os.path.join(oracle_dir, repo, 'capped_oracle_10000'), 'rb'))
