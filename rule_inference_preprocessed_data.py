@@ -26,7 +26,7 @@ def setup_args():
   parser.add_argument("--seed", type=int, default=9, help="seed for reproducibility")
   parser.add_argument("--input_data_dir", type=str, default='rule_classifier_data', help="base directory for the data")
   parser.add_argument("--data_split", type=str, default='val', help="data_split")
-  parser.add_argument("--model_dir", type=str, default='models/', help="base directory for storing the models")
+  parser.add_argument("--model_path", type=str, default='models/rlpg-h', help="base directory for storing the models")
   parser.add_argument("--batch_size", type=int, default=32, help="batch size for training the classifier")
   return parser.parse_args()
 
@@ -79,12 +79,16 @@ if __name__ == '__main__':
   os.makedirs(os.path.join('outputs', args.data_split), exist_ok=True)
   f_out = open(os.path.join('outputs', args.data_split + '_inference'), 'a')
 
-  model_path = args.model_dir
-  model_path_parts = model_path.split('/')[-1].split('#')
-  emb_model_type = model_path_parts[7]
-  n_head = int(model_path_parts[9])
-  d_k = int(model_path_parts[11])
-  mode = model_path_parts[13]
+  model_path = args.model_path
+  mode = model_path.split('/')[-1]
+
+  # Define the model
+  if mode == 'rlpg-h':
+    emb_model_type = 'codebert'  
+    rule_model = RuleModel(emb_model_type=emb_model_type, device=device, mode=mode)
+  if mode == 'rlpg-r':
+    emb_model_type = 'codebert'
+    rule_model = RuleModel(emb_model_type=emb_model_type, device=device, mode=mode, n_head=4, d_k=32)
 
   # Define train and val dataloaders
   kwargs = {'num_workers': 8, 'pin_memory': True} if device=='cuda' else {}
@@ -92,19 +96,11 @@ if __name__ == '__main__':
   dataset = RuleDataset(os.path.join(args.input_data_dir, args.data_split), tokenizer=tokenizer, emb_model_type=emb_model_type)  
   data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn, **kwargs)
 
-  # Define the model
-  rule_model = RuleModel(emb_model_type=emb_model_type, device=device, n_head=n_head, d_k=d_k, mode=mode)
-
   print("=> loading checkpoint '{}'".format(model_path))
   best_model_path = os.path.join(model_path, 'best_model.th')
-  opt_path = os.path.join(model_path, 'optim.th')
-  try:
-    status_dict = torch.load(opt_path, map_location=torch.device('cpu'))
-    rule_model.load_state_dict(torch.load(best_model_path, map_location=torch.device('cpu')))
-    print("=> loaded checkpoint '{}' (epoch {})".format(model_path, status_dict['last_epoch']))
-    rule_model.to(device)
-  except:
-    sys.exit("Not a valid model")
+  rule_model.load_state_dict(torch.load(best_model_path, map_location=torch.device('cpu')), strict=False)
+  print("=> loaded checkpoint '{}'".format(model_path))
+  rule_model.to(device)
 
   rule_model.eval()
   criterion = nn.BCELoss(reduction='none')
@@ -118,7 +114,6 @@ if __name__ == '__main__':
     count = 0
 
     for batch in tqdm(data_loader):
-
       hole_context = Variable(batch[0]).to(device)
       hole_attention_mask = Variable(batch[1]).to(device)
       rule_context = Variable(batch[2]).to(device)
@@ -158,8 +153,3 @@ if __name__ == '__main__':
 
   with open(os.path.join('outputs', args.data_split, '/'.join(model_path.split('/')[1:])) , 'wb') as f:
     pickle.dump(hole_stats, f)
-
-
-
-      
-
